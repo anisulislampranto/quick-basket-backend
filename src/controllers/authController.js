@@ -34,7 +34,7 @@ exports.googleAuth = async (req, res, next) => {
       console.log("createdUser", user);
     }
 
-    const token = createToken(user._id, user.email);
+    const token = createToken(user.email);
 
     res.cookie("token", token).status(200).json({
       message: "success",
@@ -46,5 +46,21 @@ exports.googleAuth = async (req, res, next) => {
     res.status(500).json({
       message: "Internal Server Error",
     });
+  }
+};
+
+exports.getMe = async (req, res, next) => {
+  try {
+    const userId = req.user._id; // or however you access the user ID
+    const user = await User.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({ data: user });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
