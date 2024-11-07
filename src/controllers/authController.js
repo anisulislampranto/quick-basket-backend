@@ -4,7 +4,7 @@ const { oauth2Client } = require("../utils/googleClient");
 
 exports.googleAuth = async (req, res, next) => {
   const code = req.query.code;
-  //   const type = req.query.type;
+  const type = req.query.type;
 
   console.log("code");
 
@@ -27,7 +27,7 @@ exports.googleAuth = async (req, res, next) => {
     // If user does not exist, create a new user
     if (!user) {
       user = await User.create({
-        // type,
+        type,
         name,
         email,
         image: picture,
