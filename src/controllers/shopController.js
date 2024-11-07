@@ -3,7 +3,14 @@ const User = require("../models/user");
 
 exports.createShop = async (req, res, next) => {
   const { name, description } = req.body;
-  const { path } = req?.file;
+
+  const logo = req.files["logo"] ? req.files["logo"][0] : null;
+  const coverImage = req.files["coverImage"]
+    ? req.files["coverImage"][0]
+    : null;
+
+  console.log("logo", logo);
+  console.log("coverImage", coverImage);
 
   try {
     const user = await User.findById({ _id: req.user._id });
@@ -24,12 +31,15 @@ exports.createShop = async (req, res, next) => {
       name,
       description,
       owner: user._id,
-      image: path,
+      logo: logo.path,
+      coverImage: coverImage.path,
     });
 
     console.log("shop", shop);
 
     const savedShop = await shop.save();
+
+    console.log("savedShop", savedShop);
 
     user.shop = savedShop._id;
     await user.save();
