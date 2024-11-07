@@ -1,19 +1,11 @@
 const express = require("express");
-// const passport = require("passport");
-const {
-  googleAuth,
-  getMe,
-  signup,
-  signin,
-} = require("../controllers/authController");
 const { isLoggedIn } = require("../middleware/isLoggedIn");
+const { createShop } = require("../controllers/shopController");
+const upload = require("../../config/multerconfig");
 
 const router = express.Router();
 
-router.get("/getMe", isLoggedIn, getMe);
-router.get("/google", googleAuth);
-router.post("/signup", signup);
-router.post("/signin", signin);
+router.post("/create", isLoggedIn, upload.single("image"), createShop);
 
 // router.get(
 //   "/facebook",

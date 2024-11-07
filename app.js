@@ -11,20 +11,18 @@ const port = process.env.PORT || 4000;
 require("./src/utils/passportSetup");
 
 const authRouter = require("./src/routes/authRouter");
+const shopRouter = require("./src/routes/shopRouter");
 
 // Middleware
 app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
 app.use(express.json());
 app.use(passport.initialize());
 
-console.log("process.env.FRONTEND_URL");
-
 // Routes
 app.use("/api/auth", authRouter);
+app.use("/api/shop", shopRouter);
 
-app.use("/", (req, res) => {
-  res.send("hello world");
-});
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // MongoDB connection
 mongoose

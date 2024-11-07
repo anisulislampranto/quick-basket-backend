@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const shopSchema = new mongoose.Schema({
   name: { type: String, unique: true, required: true },
+  image: { type: String, required: true },
   description: String,
   owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],

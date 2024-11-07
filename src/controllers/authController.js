@@ -7,8 +7,6 @@ exports.googleAuth = async (req, res, next) => {
   const code = req.query.code;
   const type = req.query.type;
 
-  console.log("code");
-
   try {
     const googleRes = await oauth2Client.getToken(code);
 
@@ -21,9 +19,13 @@ exports.googleAuth = async (req, res, next) => {
 
     const { email, name, picture } = data;
 
-    let user = await User.findOne({ email });
-
-    console.log("user exist", user);
+    let user = await User.findOne({ email })
+      .populate("orders")
+      .populate({
+        path: "shop",
+        model: "Shop",
+        populate: [{ path: "products", model: "Product" }],
+      });
 
     // If user does not exist, create a new user
     if (!user) {
@@ -33,8 +35,6 @@ exports.googleAuth = async (req, res, next) => {
         email,
         image: picture,
       });
-
-      console.log("createdUser", user);
     }
 
     const token = createToken(user._id, user.email);
@@ -54,10 +54,10 @@ exports.googleAuth = async (req, res, next) => {
 
 exports.getMe = async (req, res, next) => {
   try {
-    console.log("req.user._id", req.user._id);
     const userId = req.user._id;
-    const user = await User.findById({ _id: userId }).select("-password");
-    console.log("user", user);
+    const user = await User.findById({ _id: userId })
+      .select("-password")
+      .populate("shop");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -73,16 +73,12 @@ exports.getMe = async (req, res, next) => {
 exports.signup = async (req, res, next) => {
   const { name, email, password, type } = req.body;
 
-  console.log(name, email, password, type);
-
   try {
     if (!name || !email || !password) {
       throw Error("All fields are required!!!");
     }
 
     const user = await User.findOne({ email });
-
-    console.log("user", user);
 
     if (user) {
       return res.status(403).json({ message: "Already have an account." });
@@ -96,8 +92,6 @@ exports.signup = async (req, res, next) => {
       email,
       password: hashedPassword,
     });
-
-    console.log("createdUser", createdUser);
 
     const token = createToken(createdUser._id, email);
 
