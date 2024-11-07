@@ -17,8 +17,14 @@ app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
 app.use(express.json());
 app.use(passport.initialize());
 
+console.log("process.env.FRONTEND_URL");
+
 // Routes
 app.use("/api/auth", authRouter);
+
+app.use("/", (req, res) => {
+  res.send("hello world");
+});
 
 // MongoDB connection
 mongoose
