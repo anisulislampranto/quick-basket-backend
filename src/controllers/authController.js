@@ -113,3 +113,42 @@ exports.signup = async (req, res, next) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+exports.signin = async (req, res, next) => {
+  const { email, password } = req.body;
+
+  try {
+    if (!email || !password) {
+      throw Error("All fields are required!!!");
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "Incorrect Email" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      throw Error("Incorrect password");
+    }
+
+    const token = createToken(user._id, user.email);
+
+    const userResponse = {
+      _id: user.id,
+      email: user.email,
+      name: user.name,
+      type: user.type,
+      token,
+    };
+
+    res.status(200).json({
+      message: "Logged In successfully!",
+      data: userResponse,
+    });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
