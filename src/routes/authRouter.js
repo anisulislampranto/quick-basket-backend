@@ -1,12 +1,13 @@
 const express = require("express");
 const passport = require("passport");
-const { googleAuth, getMe } = require("../controllers/authController");
+const { googleAuth, getMe, signup } = require("../controllers/authController");
 const { isLoggedIn } = require("../middleware/isLoggedIn");
 
 const router = express.Router();
 
 router.get("/getMe", isLoggedIn, getMe);
 router.get("/google", googleAuth);
+router.post("/signup", signup);
 // router.get(
 //   "/facebook",
 //   passport.authenticate("facebook", { scope: ["email"] })
