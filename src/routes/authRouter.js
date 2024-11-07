@@ -5,6 +5,7 @@ const { isLoggedIn } = require("../middleware/isLoggedIn");
 
 const router = express.Router();
 
+router.get("/getMe", isLoggedIn, getMe);
 router.get("/google", googleAuth);
 // router.get(
 //   "/facebook",
@@ -19,23 +20,22 @@ router.get("/google", googleAuth);
 // );
 
 // GitHub login
-router.get(
-  "/github",
-  passport.authenticate("github", { scope: ["user:email"] })
-);
-router.get(
-  "/github/callback",
-  passport.authenticate("github", { session: false }),
-  async (req, res) => {
-    const token = createToken(req.user.email);
-    res.status(200).json({
-      message: "Login successful",
-      token,
-      user: req.user,
-    });
-  }
-);
+// router.get(
+//   "/github",
+//   passport.authenticate("github", { scope: ["user:email"] })
+// );
 
-router.get("/getMe", isLoggedIn, getMe);
+// router.get(
+//   "/github/callback",
+//   passport.authenticate("github", { session: false }),
+//   async (req, res) => {
+//     const token = createToken(req.user.email);
+//     res.status(200).json({
+//       message: "Login successful",
+//       token,
+//       user: req.user,
+//     });
+//   }
+// );
 
 module.exports = router;

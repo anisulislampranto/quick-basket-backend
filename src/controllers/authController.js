@@ -22,6 +22,8 @@ exports.googleAuth = async (req, res, next) => {
 
     let user = await User.findOne({ email });
 
+    console.log("user exist", user);
+
     // If user does not exist, create a new user
     if (!user) {
       user = await User.create({
@@ -34,7 +36,7 @@ exports.googleAuth = async (req, res, next) => {
       console.log("createdUser", user);
     }
 
-    const token = createToken(user.email);
+    const token = createToken(user._id, user.email);
 
     res.cookie("token", token).status(200).json({
       message: "success",
@@ -51,8 +53,10 @@ exports.googleAuth = async (req, res, next) => {
 
 exports.getMe = async (req, res, next) => {
   try {
-    const userId = req.user._id; // or however you access the user ID
-    const user = await User.findById(userId).select("-password");
+    console.log("req.user._id", req.user._id);
+    const userId = req.user._id;
+    const user = await User.findById({ _id: userId }).select("-password");
+    console.log("user", user);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });

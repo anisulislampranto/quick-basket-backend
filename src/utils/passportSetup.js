@@ -24,30 +24,30 @@ const User = require("../models/user");
 //   )
 // );
 
-passport.use(
-  new GitHubStrategy(
-    {
-      clientID: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: `${process.env.BACKEND_URL}/api/auth/github/callback`,
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      console.log("profile", profile);
+// passport.use(
+//   new GitHubStrategy(
+//     {
+//       clientID: process.env.GITHUB_CLIENT_ID,
+//       clientSecret: process.env.GITHUB_CLIENT_SECRET,
+//       callbackURL: `${process.env.BACKEND_URL}/api/auth/github/callback`,
+//     },
+//     async (accessToken, refreshToken, profile, done) => {
+//       console.log("profile", profile);
 
-      const email = profile.emails[0].value;
-      const { displayName, avatar_url } = profile;
+//       const email = profile.emails[0].value;
+//       const { displayName, avatar_url } = profile;
 
-      let user = await User.findOne({ email });
+//       let user = await User.findOne({ email });
 
-      if (!user) {
-        user = await User.create({
-          name: displayName,
-          email,
-          image: avatar_url,
-        });
-      }
+//       if (!user) {
+//         user = await User.create({
+//           name: displayName,
+//           email,
+//           image: avatar_url,
+//         });
+//       }
 
-      return done(null, user);
-    }
-  )
-);
+//       return done(null, user);
+//     }
+//   )
+// );
