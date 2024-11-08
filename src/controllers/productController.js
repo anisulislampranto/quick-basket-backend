@@ -41,3 +41,38 @@ exports.createProduct = async (req, res, next) => {
       .json({ message: "Server error. Please try again later." });
   }
 };
+
+exports.editProduct = async (req, res, next) => {
+  try {
+    const { productId } = req.params;
+    const { name, description, price, stock, category } = req.body;
+
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (name) product.name = name;
+    if (description) product.description = description;
+    if (price) product.price = price;
+    if (stock) product.stock = stock;
+    if (category) product.category = category;
+
+    if (req.files && req.files.length > 0) {
+      product.images = req.files.map((file) => file.path);
+    }
+
+    const updatedProduct = await product.save();
+
+    return res.status(200).json({
+      message: "Product updated successfully",
+      product: updatedProduct,
+    });
+  } catch (error) {
+    console.error("Error updating product:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error. Please try again later." });
+  }
+};

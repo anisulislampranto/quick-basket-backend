@@ -1,7 +1,10 @@
 const express = require("express");
 const { isLoggedIn } = require("../middleware/isLoggedIn");
 const upload = require("../../config/multerconfig");
-const { createProduct } = require("../controllers/productController");
+const {
+  createProduct,
+  editProduct,
+} = require("../controllers/productController");
 const { isShopOwner } = require("../middleware/isShopOwner");
 const { myShop } = require("../controllers/shopController");
 
@@ -13,6 +16,13 @@ router.post(
   isShopOwner,
   upload.array("images", 5),
   createProduct
+);
+router.patch(
+  "/:productId/edit",
+  isLoggedIn,
+  isShopOwner,
+  upload.array("images", 5),
+  editProduct
 );
 
 router.post("/my-shop", isLoggedIn, isShopOwner, myShop);
