@@ -1,4 +1,5 @@
 const Product = require("../models/product");
+const Shop = require("../models/shop");
 
 exports.createProduct = async (req, res, next) => {
   try {
@@ -22,13 +23,19 @@ exports.createProduct = async (req, res, next) => {
       shop,
     });
 
-    await product.save();
+    const savedProduct = await product.save();
 
-    console.log("savedProduct", product);
+    await Shop.findByIdAndUpdate(
+      shop,
+      { $push: { products: savedProduct._id } },
+      { new: true }
+    );
+
+    console.log("savedProduct", savedProduct);
 
     return res
       .status(201)
-      .json({ message: "Product created successfully", product });
+      .json({ message: "Product created successfully", product: savedProduct });
   } catch (error) {
     console.error("Error creating product:", error);
     return res

@@ -55,9 +55,15 @@ exports.googleAuth = async (req, res, next) => {
 exports.getMe = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    const user = await User.findById({ _id: userId })
+    const user = await User.findById(userId)
       .select("-password")
-      .populate("shop");
+      .populate({
+        path: "shop",
+        populate: {
+          path: "products",
+          model: "Product",
+        },
+      });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });

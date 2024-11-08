@@ -53,4 +53,20 @@ exports.createShop = async (req, res, next) => {
   }
 };
 
-exports.myShop = async (req, res, next) => {};
+exports.myShop = async (req, res, next) => {
+  try {
+    const userWithShop = await User.findById(req.user._id).populate("shop");
+
+    if (!userWithShop.shop) {
+      return res.status(404).json({ message: "No shop found for this user." });
+    }
+
+    res.status(200).json({
+      message: "Shop retrieved successfully",
+      shop: userWithShop.shop,
+    });
+  } catch (error) {
+    console.error("Error in myShop:", error);
+    res.status(500).json({ message: "Server error. Please try again later." });
+  }
+};

@@ -4,6 +4,10 @@ exports.isShopOwner = async (req, res, next) => {
   try {
     const userWithShop = await User.findById(req.user._id).populate("shop");
 
+    if (!userWithShop?.shop) {
+      return res.status(404).json({ message: "No shop found for this user." });
+    }
+
     if (
       userWithShop.shop &&
       userWithShop.shop.owner.toString() === req.user._id.toString()
