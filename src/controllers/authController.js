@@ -24,8 +24,14 @@ exports.googleAuth = async (req, res, next) => {
       .populate("orders")
       .populate({
         path: "shop",
-        model: "Shop",
-        populate: [{ path: "products", model: "Product" }],
+        populate: {
+          path: "products",
+          model: "Product",
+          populate: {
+            path: "shop",
+            model: "Shop",
+          },
+        },
       });
 
     // If user does not exist, create a new user
