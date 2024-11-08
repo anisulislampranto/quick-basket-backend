@@ -52,3 +52,5 @@ exports.createShop = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
+
+exports.myShop = async (req, res, next) => {};
