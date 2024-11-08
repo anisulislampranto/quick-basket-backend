@@ -31,8 +31,6 @@ exports.createProduct = async (req, res, next) => {
       { new: true }
     );
 
-    console.log("savedProduct", savedProduct);
-
     return res
       .status(201)
       .json({ message: "Product created successfully", product: savedProduct });
