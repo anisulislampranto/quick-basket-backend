@@ -20,19 +20,17 @@ exports.googleAuth = async (req, res, next) => {
 
     const { email, name, picture } = data;
 
-    let user = await User.findOne({ email })
-      .populate("orders")
-      .populate({
-        path: "shop",
+    let user = await User.findOne({ email }).populate({
+      path: "shop",
+      populate: {
+        path: "products",
+        model: "Product",
         populate: {
-          path: "products",
-          model: "Product",
-          populate: {
-            path: "shop",
-            model: "Shop",
-          },
+          path: "shop",
+          model: "Shop",
         },
-      });
+      },
+    });
 
     // If user does not exist, create a new user
     if (!user) {

@@ -4,13 +4,16 @@ const User = require("../models/user");
 exports.createShop = async (req, res, next) => {
   const { name, description } = req.body;
 
-  const logo = req.files["logo"] ? req.files["logo"][0].path : null;
-  const coverImage = req.files["coverImage"]
-    ? req.files["coverImage"][0].path
-    : null;
+  console.log("req.files", req.files);
+
+  // Get file paths if they exist
+  const logo = req?.files["logo"] ? req?.files["logo"][0].path : undefined;
+  const coverImage = req?.files["coverImage"]
+    ? req?.files["coverImage"][0].path
+    : undefined;
 
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById({ _id: req.user._id });
 
     if (!user || user.type !== "seller") {
       return res
@@ -18,27 +21,23 @@ exports.createShop = async (req, res, next) => {
         .json({ message: "Only sellers can create shops." });
     }
 
+    // Check if user already has a shop
     const existingShop = await Shop.findOne({ owner: user._id });
+
     if (existingShop) {
       return res.status(400).json({ message: "You already have a shop." });
-    }
-
-    // Validate required fields
-    if (!name || !logo || !coverImage) {
-      return res
-        .status(400)
-        .json({ message: "All fields (name, logo, coverImage) are required." });
     }
 
     const shopData = {
       name,
       description,
-      logo,
-      coverImage,
       owner: user._id,
+      ...(logo && { logo }),
+      ...(coverImage && { coverImage }),
     };
 
     const shop = new Shop(shopData);
+    console.log("shop", shop);
 
     const savedShop = await shop.save();
 
