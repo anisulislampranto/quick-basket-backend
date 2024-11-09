@@ -4,12 +4,16 @@ const upload = require("../../config/multerconfig");
 const {
   createProduct,
   editProduct,
+  getProducts,
+  getProduct,
 } = require("../controllers/productController");
 const { isShopOwner } = require("../middleware/isShopOwner");
 const { myShop } = require("../controllers/shopController");
 
 const router = express.Router();
 
+router.get("/", getProducts);
+router.get("/:id", getProduct);
 router.post(
   "/create",
   isLoggedIn,
@@ -17,6 +21,7 @@ router.post(
   upload.array("images", 5),
   createProduct
 );
+
 router.patch(
   "/:productId/edit",
   isLoggedIn,

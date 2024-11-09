@@ -1,6 +1,37 @@
 const Product = require("../models/product");
 const Shop = require("../models/shop");
 
+exports.getProducts = async (req, res, next) => {
+  try {
+    const products = await Product.find({ isActive: true }).populate("shop");
+    res.status(200).json({ message: "Success!", products });
+  } catch (error) {
+    console.error("Error creating product:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error. Please try again later." });
+  }
+};
+exports.getProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findOne({ _id: id, isActive: true }).populate(
+      "shop"
+    );
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json({ message: "Success!", product });
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error. Please try again later." });
+  }
+};
+
 exports.createProduct = async (req, res, next) => {
   try {
     const { name, description, price, stock, category, shop } = req.body;
