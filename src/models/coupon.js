@@ -6,9 +6,9 @@ const couponSchema = new mongoose.Schema({
   discountValue: { type: Number, required: true },
   minimumOrderValue: Number,
   expirationDate: Date,
-  applicableProducts: [
-    { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
-  ],
+  // applicableProducts: [
+  //   { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+  // ],
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

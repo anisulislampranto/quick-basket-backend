@@ -8,6 +8,11 @@ const orderSchema = new mongoose.Schema({
   },
   items: [
     {
+      orderStatus: {
+        type: String,
+        enum: ["pending", "accepted"],
+        default: "pending",
+      },
       product: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
@@ -26,15 +31,12 @@ const orderSchema = new mongoose.Schema({
   paymentStatus: { type: String, enum: ["paid", "unpaid"], default: "unpaid" },
   paymentMethod: {
     type: String,
-    enum: ["card", "paypal", "cash_on_delivery"],
+    enum: ["card", "cash_on_delivery"],
     required: true,
   },
-  shippingAddress: {
-    street: String,
-    city: String,
-    state: String,
-    country: String,
-    zipCode: String,
+  deliveryAddress: {
+    type: String,
+    required: true,
   },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

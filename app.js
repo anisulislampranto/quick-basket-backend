@@ -13,6 +13,8 @@ require("./src/utils/passportSetup");
 const authRouter = require("./src/routes/authRouter");
 const shopRouter = require("./src/routes/shopRouter");
 const productRouter = require("./src/routes/productRouter");
+const couponRouter = require("./src/routes/couponRouter");
+const orderRouter = require("./src/routes/orderRouter");
 
 // Middleware
 app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
@@ -23,6 +25,8 @@ app.use(passport.initialize());
 app.use("/api/auth", authRouter);
 app.use("/api/shop", shopRouter);
 app.use("/api/products", productRouter);
+app.use("/api/coupons", couponRouter);
+app.use("/api/orders", orderRouter);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
