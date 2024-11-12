@@ -164,6 +164,8 @@ exports.signin = async (req, res, next) => {
       email: user.email,
       name: user.name,
       type: user.type,
+      shop: user.shop,
+      orders: user.orders,
       token,
     };
 

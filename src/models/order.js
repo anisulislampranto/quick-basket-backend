@@ -8,10 +8,10 @@ const orderSchema = new mongoose.Schema({
   },
   items: [
     {
-      orderStatus: {
-        type: String,
-        enum: ["pending", "accepted"],
-        default: "pending",
+      shop: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Shop",
+        required: true,
       },
       product: {
         type: mongoose.Schema.Types.ObjectId,
@@ -20,6 +20,11 @@ const orderSchema = new mongoose.Schema({
       },
       quantity: { type: Number, required: true },
       price: { type: Number, required: true },
+      orderStatus: {
+        type: String,
+        enum: ["pending", "accepted"],
+        default: "pending",
+      },
     },
   ],
   totalAmount: { type: Number, required: true },

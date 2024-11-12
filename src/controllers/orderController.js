@@ -6,8 +6,6 @@ exports.createOrder = async (req, res, next) => {
   const { items, totalPrice, deliveryAddress } = req.body;
   const customer = req.user?._id;
 
-  console.log("req.body", req.body);
-
   if (!items || items.length === 0) {
     return res.status(400).json({ error: "Items are required" });
   }
@@ -32,8 +30,6 @@ exports.createOrder = async (req, res, next) => {
 
     // Save order to the database
     const savedOrder = await order.save();
-
-    console.log("savedOrder", savedOrder);
 
     return res.status(201).json({
       message: "Order created successfully",
@@ -67,8 +63,6 @@ exports.getOrders = async (req, res, next) => {
 };
 
 exports.payment = async (req, res, next) => {
-  console.log("req.user", req.body);
-
   try {
     const { totalAmount, orderId, customerId } = req.body;
 
@@ -102,8 +96,6 @@ exports.payment = async (req, res, next) => {
       cancel_url: `${process.env.FRONTEND_URL}/cancel`,
     });
 
-    console.log("session", session);
-
     const transactionId = session.id;
 
     // Update the order with payment details
@@ -117,8 +109,6 @@ exports.payment = async (req, res, next) => {
       { new: true }
     );
 
-    console.log("updatedOrder", updatedOrder);
-
     if (!updatedOrder) {
       return res.status(404).json({ error: "Order not found." });
     }
@@ -130,5 +120,67 @@ exports.payment = async (req, res, next) => {
       error: "Failed to process payment",
       message: error.message,
     });
+  }
+};
+
+exports.acceptOrder = async (req, res, next) => {
+  const { orderId, itemId } = req.params;
+
+  console.log("orderId", orderId);
+  console.log("itemId", itemId);
+
+  try {
+    const order = await Order.findOneAndUpdate(
+      { _id: orderId, "items._id": itemId },
+      { $set: { "items.$.orderStatus": "accepted" } },
+      { new: true }
+    );
+
+    console.log("order", order);
+
+    if (!order) {
+      return res.status(404).json({ error: "Order item not found" });
+    }
+
+    res.json({ message: "Order item status updated successfully", order });
+  } catch (error) {
+    console.error("Error updating order item status:", error);
+    res.status(500).json({ error: "Error updating order item status." });
+  }
+};
+
+exports.acceptAllItems = async (req, res, next) => {
+  try {
+    const { orderId, shopId } = req.params;
+
+    console.log("====================================");
+    console.log(orderId, shopId);
+    console.log("====================================");
+
+    const updatedOrder = await Order.updateOne(
+      { _id: orderId },
+      {
+        $set: { "items.$[elem].orderStatus": "accepted" },
+      },
+      {
+        arrayFilters: [{ "elem.shop": shopId }],
+        new: true,
+      }
+    );
+
+    if (updatedOrder.modifiedCount === 0) {
+      return res.status(404).json({
+        message: "No items found for the specified shop in this order.",
+      });
+    }
+
+    res.json({
+      message: "All items from your shop have been accepted successfully.",
+    });
+  } catch (error) {
+    console.error("Error accepting all items:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to accept all items for this order.", error });
   }
 };

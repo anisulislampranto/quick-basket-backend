@@ -6,8 +6,6 @@ const User = require("../models/user");
 exports.createShop = async (req, res, next) => {
   const { name, description } = req.body;
 
-  console.log("req.files", req.files);
-
   // Get file paths if they exist
   const logo = req?.files["logo"] ? req?.files["logo"][0].path : undefined;
   const coverImage = req?.files["coverImage"]
@@ -39,7 +37,6 @@ exports.createShop = async (req, res, next) => {
     };
 
     const shop = new Shop(shopData);
-    console.log("shop", shop);
 
     const savedShop = await shop.save();
 
@@ -75,8 +72,6 @@ exports.myShop = async (req, res, next) => {
 };
 
 exports.getShopOrders = async (req, res, next) => {
-  console.log("bari");
-
   try {
     const { shopId } = req.params;
 
@@ -84,13 +79,9 @@ exports.getShopOrders = async (req, res, next) => {
 
     const productIds = products.map((product) => product._id);
 
-    console.log("productIds", productIds);
-
     const orders = await Order.find({ "items.product": { $in: productIds } })
       .populate("customer", "name email")
-      .populate("items.product", "name price");
-
-    console.log("orders", orders);
+      .populate("items.product", "name price shop images");
 
     res.status(200).json({ success: true, orders });
   } catch (error) {
