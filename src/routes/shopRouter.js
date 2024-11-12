@@ -1,6 +1,6 @@
 const express = require("express");
 const { isLoggedIn } = require("../middleware/isLoggedIn");
-const { createShop } = require("../controllers/shopController");
+const { createShop, getShopOrders } = require("../controllers/shopController");
 const upload = require("../../config/multerconfig");
 
 const router = express.Router();
@@ -14,5 +14,7 @@ router.post(
   ]),
   createShop
 );
+
+router.get("/:shopId/orders", isLoggedIn, getShopOrders);
 
 module.exports = router;

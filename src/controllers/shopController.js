@@ -1,3 +1,5 @@
+const Order = require("../models/order");
+const Product = require("../models/product");
 const Shop = require("../models/shop");
 const User = require("../models/user");
 
@@ -68,6 +70,31 @@ exports.myShop = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error in myShop:", error);
+    res.status(500).json({ message: "Server error. Please try again later." });
+  }
+};
+
+exports.getShopOrders = async (req, res, next) => {
+  console.log("bari");
+
+  try {
+    const { shopId } = req.params;
+
+    const products = await Product.find({ shop: shopId }).select("_id");
+
+    const productIds = products.map((product) => product._id);
+
+    console.log("productIds", productIds);
+
+    const orders = await Order.find({ "items.product": { $in: productIds } })
+      .populate("customer", "name email")
+      .populate("items.product", "name price");
+
+    console.log("orders", orders);
+
+    res.status(200).json({ success: true, orders });
+  } catch (error) {
+    console.error("Error fetching shop orders:", error);
     res.status(500).json({ message: "Server error. Please try again later." });
   }
 };

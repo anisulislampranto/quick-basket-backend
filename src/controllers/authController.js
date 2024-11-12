@@ -19,17 +19,19 @@ exports.googleAuth = async (req, res, next) => {
 
     const { email, name, picture } = data;
 
-    let user = await User.findOne({ email }).populate({
-      path: "shop",
-      populate: {
-        path: "products",
-        model: "Product",
+    let user = await User.findOne({ email })
+      .populate({
+        path: "shop",
         populate: {
-          path: "shop",
-          model: "Shop",
+          path: "products",
+          model: "Product",
+          populate: {
+            path: "shop",
+            model: "Shop",
+          },
         },
-      },
-    });
+      })
+      .populate("orders");
 
     // If user does not exist, create a new user
     if (!user) {
@@ -71,7 +73,8 @@ exports.getMe = async (req, res, next) => {
             model: "Shop",
           },
         },
-      });
+      })
+      .populate("orders");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -130,7 +133,19 @@ exports.signin = async (req, res, next) => {
       throw Error("All fields are required!!!");
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email })
+      .populate({
+        path: "shop",
+        populate: {
+          path: "products",
+          model: "Product",
+          populate: {
+            path: "shop",
+            model: "Shop",
+          },
+        },
+      })
+      .populate("orders");
 
     if (!user) {
       return res.status(404).json({ message: "Incorrect Email" });
