@@ -135,9 +135,6 @@ exports.payment = async (req, res, next) => {
 exports.acceptOrder = async (req, res, next) => {
   const { orderId, itemId } = req.params;
 
-  console.log("orderId", orderId);
-  console.log("itemId", itemId);
-
   try {
     const order = await Order.findOneAndUpdate(
       { _id: orderId, "items._id": itemId },
@@ -189,16 +186,34 @@ exports.acceptAllItems = async (req, res, next) => {
       .json({ message: "Failed to accept all items for this order.", error });
   }
 };
-
 exports.updateOrderStatus = async (req, res) => {
   const { orderId, newStatus } = req.body;
 
   try {
-    const order = await Order.findById(orderId);
+    const order = await Order.findById(orderId).populate("items.product");
     if (!order) return res.status(404).json({ error: "Order not found" });
 
-    // Update the order status
+    // Update order status
     order.orderStatus = newStatus;
+
+    // If the order status is "delivered", update the sales array in each product
+    if (newStatus === "delivered") {
+      for (const item of order.items) {
+        const product = item.product;
+        const quantity = item.quantity;
+
+        // Update the product's sales array
+        product.sales.push({
+          quantity,
+          date: new Date(),
+        });
+
+        // Save the updated product
+        await product.save();
+      }
+    }
+
+    // Save the updated order
     await order.save();
 
     res.json({ message: "Order status updated successfully", order });
