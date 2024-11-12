@@ -1,12 +1,15 @@
 const Order = require("../models/order");
 
 exports.createOrder = async (req, res, next) => {
-  const { customer, items, totalAmount, deliveryAddress } = req.body;
+  const { items, totalPrice, deliveryAddress } = req.body;
+  const customer = req.user?._id;
+
+  console.log("req.body", req.body);
 
   if (!items || items.length === 0) {
     return res.status(400).json({ error: "Items are required" });
   }
-  if (!totalAmount || typeof totalAmount !== "number") {
+  if (!totalPrice || typeof totalPrice !== "number") {
     return res
       .status(400)
       .json({ error: "Total amount is required and must be a number" });
@@ -21,8 +24,7 @@ exports.createOrder = async (req, res, next) => {
     const order = new Order({
       customer,
       items,
-      totalAmount,
-      paymentMethod,
+      totalAmount: totalPrice,
       deliveryAddress,
     });
 
@@ -36,14 +38,13 @@ exports.createOrder = async (req, res, next) => {
       order: savedOrder,
     });
   } catch (error) {
-    return res.status(500).json({ error: "Failed to create order" });
+    console.log("error", error);
+
+    return res.status(500).json({ error });
   }
 };
 
-// Controller to get orders by user
 exports.getOrders = async (req, res, next) => {
-  console.log("reacher");
-
   try {
     const userOrders = await Order.find({ customer: req.user._id }).populate(
       "items.product"
