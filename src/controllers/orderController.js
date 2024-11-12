@@ -1,5 +1,7 @@
 const Order = require("../models/order");
 const Stripe = require("stripe");
+const User = require("../models/user");
+const Product = require("../models/product");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 exports.createOrder = async (req, res, next) => {
@@ -44,17 +46,24 @@ exports.createOrder = async (req, res, next) => {
 
 exports.getOrders = async (req, res, next) => {
   try {
-    const userOrders = await Order.find({ customer: req.user._id }).populate(
-      "items.product"
-    );
+    const user = await User.findById(req.user._id);
 
-    if (!userOrders || userOrders.length === 0) {
-      return res.status(404).json({ error: "No orders found for this user" });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const orders =
+      user.type === "admin"
+        ? await Order.find().populate("items.product")
+        : await Order.find({ customer: user._id }).populate("items.product");
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ error: "No orders found" });
     }
 
     return res.status(200).json({
       message: "Orders fetched successfully",
-      orders: userOrders,
+      orders,
     });
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -153,10 +162,6 @@ exports.acceptAllItems = async (req, res, next) => {
   try {
     const { orderId, shopId } = req.params;
 
-    console.log("====================================");
-    console.log(orderId, shopId);
-    console.log("====================================");
-
     const updatedOrder = await Order.updateOne(
       { _id: orderId },
       {
@@ -182,5 +187,23 @@ exports.acceptAllItems = async (req, res, next) => {
     res
       .status(500)
       .json({ message: "Failed to accept all items for this order.", error });
+  }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+  const { orderId, newStatus } = req.body;
+
+  try {
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    // Update the order status
+    order.orderStatus = newStatus;
+    await order.save();
+
+    res.json({ message: "Order status updated successfully", order });
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    res.status(500).json({ error: "Failed to update order status" });
   }
 };
