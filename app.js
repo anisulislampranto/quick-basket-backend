@@ -15,6 +15,7 @@ const shopRouter = require("./src/routes/shopRouter");
 const productRouter = require("./src/routes/productRouter");
 const couponRouter = require("./src/routes/couponRouter");
 const orderRouter = require("./src/routes/orderRouter");
+const { payment } = require("./src/controllers/orderController");
 
 // Middleware
 app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
@@ -27,6 +28,7 @@ app.use("/api/shop", shopRouter);
 app.use("/api/products", productRouter);
 app.use("/api/coupons", couponRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/payment", payment);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 

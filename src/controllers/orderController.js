@@ -1,4 +1,6 @@
 const Order = require("../models/order");
+const Stripe = require("stripe");
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 exports.createOrder = async (req, res, next) => {
   const { items, totalPrice, deliveryAddress } = req.body;
@@ -61,5 +63,72 @@ exports.getOrders = async (req, res, next) => {
   } catch (error) {
     console.error("Error fetching orders:", error);
     return res.status(500).json({ error: "Failed to fetch orders" });
+  }
+};
+
+exports.payment = async (req, res, next) => {
+  console.log("req.user", req.body);
+
+  try {
+    const { totalAmount, orderId, customerId } = req.body;
+
+    // Check for missing required fields
+    if (!totalAmount || !orderId || !customerId) {
+      return res
+        .status(400)
+        .json({ error: "Required fields are missing in the request body." });
+    }
+
+    // Confirm that STRIPE_SECRET_KEY is set
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error("Stripe secret key is not defined.");
+    }
+
+    // Create Stripe checkout session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: { name: "Order Payment" },
+            unit_amount: totalAmount * 100, // Convert amount to cents
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: `${process.env.FRONTEND_URL}/success`,
+      cancel_url: `${process.env.FRONTEND_URL}/cancel`,
+    });
+
+    console.log("session", session);
+
+    const transactionId = session.id;
+
+    // Update the order with payment details
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      {
+        "payment.status": "paid",
+        "payment.transactionId": transactionId,
+        updatedAt: Date.now(),
+      },
+      { new: true }
+    );
+
+    console.log("updatedOrder", updatedOrder);
+
+    if (!updatedOrder) {
+      return res.status(404).json({ error: "Order not found." });
+    }
+
+    res.status(200).json({ message: "Payment Success", data: session });
+  } catch (error) {
+    console.error("Error in payment:", error.message);
+    res.status(500).json({
+      error: "Failed to process payment",
+      message: error.message,
+    });
   }
 };

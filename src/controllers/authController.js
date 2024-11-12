@@ -2,7 +2,6 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const { createToken } = require("../utils/createToken");
 const { oauth2Client } = require("../utils/googleClient");
-const { populate } = require("../models/shop");
 
 exports.googleAuth = async (req, res, next) => {
   const code = req.query.code;

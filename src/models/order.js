@@ -28,7 +28,10 @@ const orderSchema = new mongoose.Schema({
     enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
     default: "pending",
   },
-  paymentStatus: { type: String, enum: ["paid", "unpaid"], default: "unpaid" },
+  payment: {
+    status: { type: String, enum: ["paid", "unpaid"], default: "unpaid" },
+    transactionId: { type: String },
+  },
   deliveryAddress: {
     type: String,
     required: true,
