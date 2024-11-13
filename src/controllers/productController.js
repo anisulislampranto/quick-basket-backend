@@ -17,7 +17,10 @@ exports.getProducts = async (req, res, next) => {
       filter.price = { ...filter.price, $lte: Number(maxPrice) };
     }
 
-    const products = await Product.find(filter).populate("shop");
+    const products = await Product.find(filter)
+      .populate("shop")
+      .populate("reviews.user");
+
     res.status(200).json({ message: "Success!", products });
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -30,9 +33,11 @@ exports.getProducts = async (req, res, next) => {
 exports.getProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const product = await Product.findOne({ _id: id, isActive: true }).populate(
-      "shop"
-    );
+    const product = await Product.findOne({ _id: id, isActive: true })
+      .populate("shop")
+      .populate("reviews.user");
+
+    console.log("product", product);
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
