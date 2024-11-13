@@ -1,5 +1,6 @@
 const Product = require("../models/product");
 const Shop = require("../models/shop");
+const moment = require("moment");
 
 exports.getProducts = async (req, res, next) => {
   try {
@@ -43,6 +44,30 @@ exports.getProduct = async (req, res, next) => {
     return res
       .status(500)
       .json({ message: "Server error. Please try again later." });
+  }
+};
+
+exports.getTrendingProducts = async (req, res, next) => {
+  try {
+    const trendingProducts = await Product.find({ isTrending: true });
+    console.log("trendingProducts", trendingProducts);
+
+    res.status(200).json(trendingProducts);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching trending products" });
+  }
+};
+
+exports.getNewArrivalProducts = async (req, res, next) => {
+  try {
+    const sevenDaysAgo = moment().subtract(7, "days").toDate();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const newArrivals = await Product.find({
+      createdAt: { $gte: sevenDaysAgo },
+    });
+    res.status(200).json(newArrivals);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching new arrivals" });
   }
 };
 

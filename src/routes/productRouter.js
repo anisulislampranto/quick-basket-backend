@@ -6,11 +6,16 @@ const {
   editProduct,
   getProducts,
   getProduct,
+  getTrendingProducts,
+  getNewArrivalProducts,
 } = require("../controllers/productController");
 const { isShopOwner } = require("../middleware/isShopOwner");
 const { myShop } = require("../controllers/shopController");
 
 const router = express.Router();
+
+router.get("/trending", getTrendingProducts);
+router.get("/new-arrivals", getNewArrivalProducts);
 
 router.get("/", getProducts);
 router.get("/:id", getProduct);

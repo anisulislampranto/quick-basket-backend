@@ -9,6 +9,7 @@ const passport = require("passport");
 const port = process.env.PORT || 4000;
 
 require("./src/utils/passportSetup");
+require("./src/utils/cronJobs");
 
 const authRouter = require("./src/routes/authRouter");
 const shopRouter = require("./src/routes/shopRouter");
