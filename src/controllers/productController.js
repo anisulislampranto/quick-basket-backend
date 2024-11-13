@@ -50,7 +50,6 @@ exports.getProduct = async (req, res, next) => {
 exports.getTrendingProducts = async (req, res, next) => {
   try {
     const trendingProducts = await Product.find({ isTrending: true });
-    console.log("trendingProducts", trendingProducts);
 
     res.status(200).json(trendingProducts);
   } catch (error) {
@@ -144,5 +143,28 @@ exports.editProduct = async (req, res, next) => {
     return res
       .status(500)
       .json({ message: "Server error. Please try again later." });
+  }
+};
+
+exports.createProductReview = async (req, res, next) => {
+  try {
+    const { rating, comment } = req.body;
+    const { productId } = req.params;
+    const userId = req.user._id;
+
+    console.log("productid", productId);
+
+    const product = await Product.findById(productId);
+    console.log("product", product);
+
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    const newReview = { user: userId, rating, comment };
+    product.reviews.push(newReview);
+    await product.save();
+
+    res.status(201).json({ message: "Review added successfully", product });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
   }
 };
