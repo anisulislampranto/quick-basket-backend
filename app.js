@@ -18,7 +18,7 @@ const couponRouter = require("./src/routes/couponRouter");
 const orderRouter = require("./src/routes/orderRouter");
 const { payment } = require("./src/controllers/orderController");
 
-// Middleware
+// Middlewaree
 app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
 app.use(express.json());
 app.use(passport.initialize());
