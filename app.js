@@ -50,6 +50,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendMessage", ({ chatId, sender, message }) => {
+    console.log("chatId, sender, message", chatId, sender, message);
     io.to(chatId).emit("newMessage", { chatId, sender, message });
   });
 
@@ -67,7 +68,7 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error(err));
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
 

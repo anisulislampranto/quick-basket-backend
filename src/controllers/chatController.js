@@ -27,6 +27,7 @@ const getOrCreateChat = async (req, res) => {
 
   try {
     let chat = await Chat.findOne({ customer: customerId, shop: shopId });
+
     if (!chat) {
       chat = await Chat.create({
         customer: customerId,
