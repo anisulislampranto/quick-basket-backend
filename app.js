@@ -13,6 +13,7 @@ const port = process.env.PORT || 4000;
 require("./src/utils/passportSetup");
 require("./src/utils/cronJobs");
 
+const Chat = require("./src/models/chat");
 const authRouter = require("./src/routes/authRouter");
 const shopRouter = require("./src/routes/shopRouter");
 const productRouter = require("./src/routes/productRouter");
@@ -41,17 +42,30 @@ app.use("/api/chat", chatRouter);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+//
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  socket.on("joinRoom", ({ chatId }) => {
+  socket.on("joinChat", async ({ chatId }) => {
     socket.join(chatId);
-    console.log(`User joined room: ${chatId}`);
+    console.log(`User joined chat: ${chatId}`);
   });
 
-  socket.on("sendMessage", ({ chatId, sender, message }) => {
-    console.log("chatId, sender, message", chatId, sender, message);
-    io.to(chatId).emit("newMessage", { chatId, sender, message });
+  socket.on("sendMessage", async ({ chatId, sender, message }) => {
+    try {
+      console.log("chatId", chatId);
+
+      const chat = await Chat.findById(chatId);
+      if (!chat) return console.error("Chat not found");
+
+      chat.messages.push({ sender, message });
+      chat.updatedAt = new Date();
+      await chat.save();
+
+      io.to(chatId).emit("newMessage", { sender, message });
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
   });
 
   socket.on("disconnect", () => {
