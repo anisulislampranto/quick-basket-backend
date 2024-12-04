@@ -53,24 +53,23 @@ io.on("connection", (socket) => {
 
   socket.on("sendMessage", async ({ chatId, sender, message }) => {
     try {
-      console.log("chatId", chatId);
-
       const chat = await Chat.findById(chatId);
       if (!chat) return console.error("Chat not found");
 
-      chat.messages.push({ sender, message });
+      const newMessage = { sender, message };
+      chat.messages.push(newMessage);
       chat.updatedAt = new Date();
       await chat.save();
 
-      io.to(chatId).emit("newMessage", { sender, message });
+      io.to(chatId).emit("newMessage", { chatId, sender, message });
     } catch (error) {
       console.error("Failed to send message:", error);
     }
   });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
-  });
+  // socket.on("disconnect", () => {
+  //   console.log("User disconnected:", socket.id);
+  // });
 });
 
 // MongoDB connection

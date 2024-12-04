@@ -5,6 +5,7 @@ const Chat = require("../models/chat");
 exports.getShopChats = async (req, res) => {
   try {
     const { shopId } = req.params;
+
     const chats = await Chat.find({ shop: shopId })
       .populate("customer", "name")
       .sort("-updatedAt");
@@ -30,23 +31,23 @@ exports.getChatMessages = async (req, res) => {
 };
 
 // Send a message
-exports.sendMessage = async (req, res) => {
-  try {
-    const { chatId } = req.params;
-    const { sender, message } = req.body;
+// exports.sendMessage = async (req, res) => {
+//   try {
+//     const { chatId } = req.params;
+//     const { sender, message } = req.body;
 
-    const chat = await Chat.findById(chatId);
-    if (!chat) return res.status(404).json({ error: "Chat not found" });
+//     const chat = await Chat.findById(chatId);
+//     if (!chat) return res.status(404).json({ error: "Chat not found" });
 
-    chat.messages.push({ sender, message });
-    chat.updatedAt = new Date();
-    await chat.save();
+//     chat.messages.push({ sender, message });
+//     chat.updatedAt = new Date();
+//     await chat.save();
 
-    res.status(200).json({ message: "Message sent successfully" });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to send message" });
-  }
-};
+//     res.status(200).json({ message: "Message sent successfully" });
+//   } catch (error) {
+//     res.status(500).json({ error: "Failed to send message" });
+//   }
+// };
 
 // Create a new chat (if it doesn't already exist)
 exports.createChat = async (req, res) => {
