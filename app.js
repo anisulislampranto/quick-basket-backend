@@ -42,34 +42,37 @@ app.use("/api/chat", chatRouter);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-//
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  socket.on("joinChat", async ({ chatId }) => {
+  // Join a specific chat room
+  socket.on("joinChat", ({ chatId }) => {
     socket.join(chatId);
-    console.log(`User joined chat: ${chatId}`);
+    console.log(`User joined chat room: ${chatId}`);
   });
 
+  // Handle sending messages (both customer and shop)
   socket.on("sendMessage", async ({ chatId, sender, message }) => {
     try {
+      // Save the message to the database
       const chat = await Chat.findById(chatId);
-      if (!chat) return console.error("Chat not found");
+      if (!chat) return;
 
       const newMessage = { sender, message };
       chat.messages.push(newMessage);
       chat.updatedAt = new Date();
       await chat.save();
 
-      io.to(chatId).emit("newMessage", { chatId, sender, message });
+      // Broadcast the message to everyone in the chat room
+      io.to(chatId).emit("newMessage", newMessage);
     } catch (error) {
-      console.error("Failed to send message:", error);
+      console.error("Error sending message:", error);
     }
   });
 
-  // socket.on("disconnect", () => {
-  //   console.log("User disconnected:", socket.id);
-  // });
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
 });
 
 // MongoDB connection

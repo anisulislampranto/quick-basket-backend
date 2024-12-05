@@ -3,13 +3,14 @@ const Chat = require("../models/chat");
 
 // Fetch all chats for a shop owner
 exports.getShopChats = async (req, res) => {
-  try {
-    const { shopId } = req.params;
+  const { shopId } = req.params;
 
-    const chats = await Chat.find({ shop: shopId })
-      .populate("customer", "name")
-      .sort("-updatedAt");
-    res.status(200).json({ chats });
+  try {
+    const chats = await Chat.find({ shop: shopId }).populate(
+      "customer",
+      "name email"
+    );
+    res.json({ chats });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch chats" });
   }
@@ -17,14 +18,16 @@ exports.getShopChats = async (req, res) => {
 
 // Fetch messages for a specific chat
 exports.getChatMessages = async (req, res) => {
+  const { chatId } = req.params;
+
   try {
-    const { chatId } = req.params;
     const chat = await Chat.findById(chatId).populate(
       "messages.sender",
       "name"
     );
     if (!chat) return res.status(404).json({ error: "Chat not found" });
-    res.status(200).json({ messages: chat.messages });
+
+    res.json({ messages: chat.messages });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch messages" });
   }
@@ -50,18 +53,18 @@ exports.getChatMessages = async (req, res) => {
 // };
 
 // Create a new chat (if it doesn't already exist)
-exports.createChat = async (req, res) => {
-  try {
-    const { shopId, customerId } = req.body;
+// exports.createChat = async (req, res) => {
+//   try {
+//     const { shopId, customerId } = req.body;
 
-    let chat = await Chat.findOne({ shop: shopId, customer: customerId });
-    if (!chat) {
-      chat = new Chat({ shop: shopId, customer: customerId, messages: [] });
-      await chat.save();
-    }
+//     let chat = await Chat.findOne({ shop: shopId, customer: customerId });
+//     if (!chat) {
+//       chat = new Chat({ shop: shopId, customer: customerId, messages: [] });
+//       await chat.save();
+//     }
 
-    res.status(200).json({ chat });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to create chat" });
-  }
-};
+//     res.status(200).json({ chat });
+//   } catch (error) {
+//     res.status(500).json({ error: "Failed to create chat" });
+//   }
+// };
