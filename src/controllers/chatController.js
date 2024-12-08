@@ -53,18 +53,22 @@ exports.getChatMessages = async (req, res) => {
 // };
 
 // Create a new chat (if it doesn't already exist)
-// exports.createChat = async (req, res) => {
-//   try {
-//     const { shopId, customerId } = req.body;
+exports.createChat = async (req, res) => {
+  try {
+    const { shopId, customerId } = req.body;
 
-//     let chat = await Chat.findOne({ shop: shopId, customer: customerId });
-//     if (!chat) {
-//       chat = new Chat({ shop: shopId, customer: customerId, messages: [] });
-//       await chat.save();
-//     }
+    console.log("shopId", shopId);
+    console.log("customerId", customerId);
 
-//     res.status(200).json({ chat });
-//   } catch (error) {
-//     res.status(500).json({ error: "Failed to create chat" });
-//   }
-// };
+    let chat = await Chat.findOne({ shop: shopId, customer: customerId });
+
+    if (!chat) {
+      chat = new Chat({ shop: shopId, customer: customerId, messages: [] });
+      await chat.save();
+    }
+
+    res.status(200).json({ chat });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to create chat" });
+  }
+};
