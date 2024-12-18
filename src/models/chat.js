@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema(
   {
-    sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Sender's ID (customer/shop owner)
+    sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     message: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
   },
@@ -12,7 +12,7 @@ const messageSchema = new mongoose.Schema(
 
 const chatSchema = new mongoose.Schema(
   {
-    shop: { type: mongoose.Schema.Types.ObjectId, ref: "Shop", required: true }, // Shop involved in the chat
+    shop: { type: mongoose.Schema.Types.ObjectId, ref: "Shop", required: true },
     customer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

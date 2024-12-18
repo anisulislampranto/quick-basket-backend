@@ -25,6 +25,9 @@ exports.getChatMessages = async (req, res) => {
       "messages.sender",
       "name"
     );
+
+    console.log("chat", chat);
+
     if (!chat) return res.status(404).json({ error: "Chat not found" });
 
     res.json({ messages: chat.messages });
