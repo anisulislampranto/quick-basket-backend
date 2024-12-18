@@ -53,17 +53,24 @@ io.on("connection", (socket) => {
   });
 
   // Handle sending messages (both customer and shop)
-  socket.on("sendMessage", async ({ chatId, sender, message }) => {
+  socket.on("sendMessage", async ({ chatId, sender, message, senderType }) => {
+    if (!chatId || !sender || !message || !senderType) {
+      console.log("Missing required fields for sendMessage.");
+      return;
+    }
+
     try {
       // Save the message to the database
       const chat = await Chat.findById(chatId);
       if (!chat) return;
 
-      const newMessage = { sender, message };
+      const newMessage = { sender, message, senderType };
+
+      console.log("newMessage", newMessage);
+
       chat.messages.push(newMessage);
       chat.updatedAt = new Date();
       await chat.save();
-
       // Broadcast the message to everyone in the chat room
       io.to(chatId).emit("newMessage", newMessage);
     } catch (error) {
