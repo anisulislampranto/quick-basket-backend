@@ -5,6 +5,7 @@ const {
   getChatMessages,
   createChat,
   helio,
+  sendMessage,
 } = require("../controllers/chatController");
 
 const router = express.Router();

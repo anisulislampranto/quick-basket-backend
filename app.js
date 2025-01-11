@@ -21,6 +21,7 @@ const couponRouter = require("./src/routes/couponRouter");
 const orderRouter = require("./src/routes/orderRouter");
 const { payment } = require("./src/controllers/orderController");
 const chatRouter = require("./src/routes/chatRouter");
+const User = require("./src/models/user");
 
 // Middlewaree
 const server = http.createServer(app);
@@ -62,6 +63,7 @@ io.on("connection", (socket) => {
     try {
       // Save the message to the database
       const chat = await Chat.findById(chatId);
+
       if (!chat) return;
 
       const newMessage = { sender, message, senderType };
@@ -70,6 +72,7 @@ io.on("connection", (socket) => {
 
       chat.messages.push(newMessage);
       chat.updatedAt = new Date();
+
       await chat.save();
       // Broadcast the message to everyone in the chat room
       io.to(chatId).emit("newMessage", newMessage);
